@@ -42,7 +42,7 @@
           <tbody>
             <tr class="p-3">
               <td class="p-3">Seats without popcorn and drinks</td>
-              <td class="p-3">$3.00</td>
+              <td class="p-3">${{ formatCurrency(price_of_seats_without) }}</td>
               <td class="p-3">
                 <select class="p-3" id="" v-model="no_of_seats_without">
                   <option
@@ -55,12 +55,12 @@
                   </option>
                 </select>
               </td>
-              <td>${{ calcWithoutTotal }}.00</td>
+              <td>${{ formatCurrency(calcWithoutTotal) }}</td>
             </tr>
 
             <tr class="p-3">
               <td class="p-3">Seats with popcorn and drinks</td>
-              <td class="p-3">$4.00</td>
+              <td class="p-3">${{ formatCurrency(price_of_seats_with) }}</td>
               <td class="p-3">
                 <select class="p-3" id="" v-model="no_of_seats_with">
                   <option
@@ -73,13 +73,13 @@
                   </option>
                 </select>
               </td>
-              <td>${{ calcWithTotal }}.00</td>
+              <td>${{ formatCurrency(calcWithTotal) }}</td>
             </tr>
           </tbody>
         </table>
 
         <div class="m-3">
-          <p class="mb-3">Ticket Total: ${{ calcTotal }}.00</p>
+          <p class="mb-3">Ticket Total: ${{ formatCurrency(calcTotal) }}</p>
           <button
             @click="bookTicket"
             :disabled="calcTotal == 0"
@@ -161,19 +161,27 @@ export default {
       this.no_of_seats_without = 0
       
     },
+
+    formatCurrency(num) {
+      if(num.toString().indexOf('.') != -1) {
+        return num
+      } else {
+        return `${num}.00`
+      }
+    }
   },
 
   computed: {
     calcWithoutTotal() {
       return (
-        parseInt(this.no_of_seats_without) *
-        parseInt(this.price_of_seats_without)
+        parseFloat(this.no_of_seats_without) *
+        parseFloat(this.price_of_seats_without)
       );
     },
 
     calcWithTotal() {
       return (
-        parseInt(this.no_of_seats_with) * parseInt(this.price_of_seats_with)
+        parseFloat(this.no_of_seats_with) * parseFloat(this.price_of_seats_with)
       );
     },
 
@@ -188,6 +196,8 @@ export default {
       `http://localhost:1337/api/events/${this.$route.params.id}?populate=*`
     );
     this.event = res.data.data;
+    this.price_of_seats_without = res.data.data.attributes.price
+    this.price_of_seats_with = res.data.data.attributes.price + 2
     const img =
       res.data.data.attributes.image.data.attributes.formats.large.url;
     this.img = `"http://localhost:1337${img}"`;
