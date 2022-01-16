@@ -1,32 +1,21 @@
 <template>
   <div class="">
     <!-- showcase -->
-
-    <!-- :style=" {
-        background: `url('http://localhost:1337${event.attributes.image.data.attributes.formats.large.url}');
-        background-color: rgba(0, 0, 0, 0.8);
-        background-blend-mode: multiply;
-        background-repeat: no-repeat;
-        background-size: cover;
-        height: 70vh;`
-      }
-      " -->
-
     <div
-      style="
-        background: url('https://files.oyebesmartest.com/uploads/large/spider-man-no-way-home-dgptqs.jpg');
-        background-color: rgba(0, 0, 0, 0.8);
-        background-blend-mode: multiply;
-        background-repeat: no-repeat;
-        background-size: cover;
-        height: 70vh;
-      "
+      :style="{
+        backgroundImage: `url(${img})`,
+        backgroundColor: `rgba(0, 0, 0, 0.8)`,
+        backgroundBlendMode: `multiply`,
+        backgroundRepeat: `no-repeat`,
+        backgroundSize: `cover`,
+        height: `70vh`,
+      }"
       class="w-screen flex items-center relative"
       ref="showcase"
     >
       <div class="w-1/2 p-5">
-        <h1 class="text-6xl mb-3 text-white uppercase font-bold my-auto">
-          spider man: No way home
+        <h1 class="text-6xl text-white mb-3 uppercase font-bold my-auto">
+          {{ event.attributes.name }}
         </h1>
         <p class="leading-normal text-lg font-thin text-white">
           Lorem ipsum dolor sit amet consectetur adipisicing elit. Velit natus
@@ -75,7 +64,7 @@
               <td class="p-3">
                 <select class="p-3" id="" v-model="no_of_seats_with">
                   <option
-                    class="p-3 bg-dark"
+                    class="p-3 bg-black"
                     v-for="(num, i) of quantityModel"
                     :key="i"
                     :value="`${num}`"
@@ -91,23 +80,48 @@
 
         <div class="m-3">
           <p class="mb-3">Ticket Total: ${{ calcTotal }}.00</p>
-          <button class="bg-black text-white p-3">Book Now</button>
+          <button
+            @click="bookTicket"
+            :disabled="calcTotal == 0"
+            class="bg-black text-white p-3"
+          >
+            Book Now
+          </button>
         </div>
       </div>
     </div>
+
+    <ticket
+      :data="res"
+      class="mx-auto h-full z-10 absolute top-0"
+      v-if="booked == true"
+    />
+
   </div>
 </template>
 
 <script>
+import axios from "axios";
+import randomstring from "randomstring";
+import ticket from "../components/Ticket.vue";
+
 export default {
   data() {
     return {
-      quantityModel: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+      quantityModel: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
       no_of_seats_without: 0,
       price_of_seats_without: 3,
       no_of_seats_with: 0,
       price_of_seats_with: 4,
+      id: "",
+      event: {},
+      img: "",
+      booked: false,
     };
+  },
+
+  components: {
+    ticket,
   },
 
   methods: {
@@ -115,9 +129,37 @@ export default {
       console.log("btn clicked");
       this.$router.push("/");
     },
+
     assignValue(num) {
       console.log(num);
       this.no_of_seats_without = num;
+    },
+
+    async bookTicket() {
+      console.log("booking ticket");
+      console.log(this.booked, 'booked')
+      const res = await axios.post(`http://localhost:1337/api/tickets`, {
+        data: {
+          seats_with: this.no_of_seats_with,
+          seats_without: this.no_of_seats_without,
+          total_seats:
+            parseInt(this.no_of_seats_without) +
+            parseInt(this.no_of_seats_with),
+          total: this.calcTotal,
+          event: this.id,
+          reference_number: randomstring.generate(),
+        },
+      });
+
+      console.log(res);
+      this.res = res.data.data.attributes;
+      this.res.event = this.event.attributes.name
+      this.res.date = this.event.attributes.date
+      // this.$router.push(`/ticket/${res.data.data.id}`);
+      this.booked = true;
+      this.no_of_seats_with = 0
+      this.no_of_seats_without = 0
+      
     },
   },
 
@@ -138,8 +180,18 @@ export default {
     calcTotal() {
       return this.calcWithoutTotal + this.calcWithTotal;
     },
-  }
+  },
 
+  async created() {
+    this.id = this.$route.params.id;
+    const res = await axios.get(
+      `http://localhost:1337/api/events/${this.$route.params.id}?populate=*`
+    );
+    this.event = res.data.data;
+    const img =
+      res.data.data.attributes.image.data.attributes.formats.large.url;
+    this.img = `"http://localhost:1337${img}"`;
+  },
 };
 </script>
 

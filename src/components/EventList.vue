@@ -29,11 +29,11 @@
               {{ event.attributes.tickets_available }}
             </div>
             <div class="text-gray-700 dark:text-gray-500">
-              {{ new Date(event.attributes.date).toDateString() }}
+              {{ formatDate(event.attributes.date) }}
             </div>
           </figcaption>
           <!-- <router-link to="/about"> -->
-          <button @click="getDetail" class="bg-black text-white p-3">
+          <button @click="getDetail(event.id)" class="bg-black text-white p-3">
             Get tickets
           </button>
           <!-- </router-link> -->
@@ -53,15 +53,22 @@ export default {
   },
 
   methods: {
-    getDetail() {
+    getDetail(id) {
       console.log("btn clicked");
-      this.$router.push("/about");
+      this.$router.push(`/event/${id}`);
+    },
+
+    formatDate(date) {
+      const timeArr = new Date(date).toLocaleTimeString().split(":");
+
+      const DorN = timeArr.pop().split(" ")[1];
+
+      return `${new Date(date).toDateString()} ${timeArr.join(":")} ${DorN}`;
     },
   },
 
   async created() {
     const res = await axios.get("http://localhost:1337/api/events?populate=*");
-    console.log(res.data.data[0]);
     this.events = res.data.data;
   },
 };

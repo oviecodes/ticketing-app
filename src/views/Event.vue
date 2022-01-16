@@ -9,7 +9,7 @@ import EventView from "../components/EventView.vue";
 // import EventView from "../components/EventView.vue";
 
 export default {
-  name: "About",
+  name: "Event",
   components: {
     EventView,
     // EventView
