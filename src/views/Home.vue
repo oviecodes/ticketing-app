@@ -10,14 +10,12 @@
 
 <script>
 // @ is an alias to /src
-// import HelloWorld from "@/components/HelloWorld.vue";
 import EventList from "../components/EventList.vue";
 
 export default {
   name: "Home",
   components: {
-    // HelloWorld,
-    EventList,
+     EventList,
   },
 };
 </script>

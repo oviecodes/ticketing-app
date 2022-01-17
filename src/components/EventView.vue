@@ -155,7 +155,6 @@ export default {
         this.res = res.data;
         this.res.event = this.event.attributes.name;
         this.res.date = this.event.attributes.date;
-        // this.$router.push(`/ticket/${res.data.data.id}`);
         this.booked = true;
         this.no_of_seats_with = 0;
         this.no_of_seats_without = 0;

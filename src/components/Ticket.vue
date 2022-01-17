@@ -26,10 +26,6 @@
 
       <p class="m-2">Price total: ${{ data.total }}.00</p>
 
-      <!-- <button class="m-2 p-3 text-white bg-black">
-        Download
-      </button> -->
-
       <router-link to="/">
         <button class="m-2 p-3 text-white bg-black">Done</button>
       </router-link>
