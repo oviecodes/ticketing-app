@@ -24,9 +24,8 @@
             </p>
           </blockquote>
           <figcaption class="font-medium">
-            <div class="text-sky-500 dark:text-sky-400">
-              Number of seats available:
-              {{ event.attributes.tickets_available }}
+            <div class="text-gray-700 dark:text-gray-500">
+              tickets available: {{ event.attributes.tickets_available }}
             </div>
             <div class="text-gray-700 dark:text-gray-500">
               {{ formatDate(event.attributes.date) }}

@@ -96,7 +96,6 @@
       class="mx-auto h-full z-10 absolute top-0"
       v-if="booked == true"
     />
-
   </div>
 </template>
 
@@ -137,38 +136,44 @@ export default {
 
     async bookTicket() {
       console.log("booking ticket");
-      console.log(this.booked, 'booked')
-      const res = await axios.post(`http://localhost:1337/api/tickets`, {
-        data: {
-          seats_with: this.no_of_seats_with,
-          seats_without: this.no_of_seats_without,
-          total_seats:
-            parseInt(this.no_of_seats_without) +
-            parseInt(this.no_of_seats_with),
-          total: this.calcTotal,
-          event: this.id,
-          reference_number: randomstring.generate(),
-        },
-      });
+      console.log(this.booked, "booked");
+      try {
 
-      console.log(res);
-      this.res = res.data.data.attributes;
-      this.res.event = this.event.attributes.name
-      this.res.date = this.event.attributes.date
-      // this.$router.push(`/ticket/${res.data.data.id}`);
-      this.booked = true;
-      this.no_of_seats_with = 0
-      this.no_of_seats_without = 0
-      
+        const res = await axios.post(`http://localhost:1337/api/tickets`, {
+          data: {
+            seats_with: this.no_of_seats_with,
+            seats_without: this.no_of_seats_without,
+            total_seats:
+              parseInt(this.no_of_seats_without) +
+              parseInt(this.no_of_seats_with),
+            total: this.calcTotal,
+            event: this.id,
+            reference_number: randomstring.generate(),
+          },
+        });
+
+        this.res = res.data;
+        this.res.event = this.event.attributes.name;
+        this.res.date = this.event.attributes.date;
+        // this.$router.push(`/ticket/${res.data.data.id}`);
+        this.booked = true;
+        this.no_of_seats_with = 0;
+        this.no_of_seats_without = 0;
+        
+      } catch (error) {
+        return alert(
+          "cannot book ticket as available tickets have been exceeded. Pick a number of ticket that is less than or equal to the available tickets"
+        );
+      }
     },
 
     formatCurrency(num) {
-      if(num.toString().indexOf('.') != -1) {
-        return num
+      if (num.toString().indexOf(".") != -1) {
+        return num;
       } else {
-        return `${num}.00`
+        return `${num}.00`;
       }
-    }
+    },
   },
 
   computed: {
@@ -192,15 +197,22 @@ export default {
 
   async created() {
     this.id = this.$route.params.id;
-    const res = await axios.get(
-      `http://localhost:1337/api/events/${this.$route.params.id}?populate=*`
-    );
-    this.event = res.data.data;
-    this.price_of_seats_without = res.data.data.attributes.price
-    this.price_of_seats_with = res.data.data.attributes.price + 2
-    const img =
-      res.data.data.attributes.image.data.attributes.formats.large.url;
-    this.img = `"http://localhost:1337${img}"`;
+    try {
+
+      const res = await axios.get(
+        `http://localhost:1337/api/events/${this.$route.params.id}?populate=*`
+      );
+      this.event = res.data.data;
+      this.price_of_seats_without = res.data.data.attributes.price;
+      this.price_of_seats_with = res.data.data.attributes.price + 2;
+      const img =
+        res.data.data.attributes.image.data.attributes.formats.large.url;
+      this.img = `"http://localhost:1337${img}"`;
+      
+    } catch (error) {
+      return alert('An Error occurred, please try agian')
+    }
+    
   },
 };
 </script>
